@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>CRC Incidence & Demographics</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f5f5f5;
+  }
+
+  h1 { color: #c0392b; }
+  h2 { color: #333; border-bottom: 2px solid #c0392b; padding-bottom: 5px; }
+
+  .stats-row {
+    display: flex;
+    gap: 15px;
+    margin: 20px 0;
+  }
+
+  .stat-box {
+    background: white;
+    border: 1px solid #ddd;
+    padding: 15px;
+    text-align: center;
+    flex: 1;
+    border-top: 4px solid #c0392b;
+  }
+
+  .stat-box .number { font-size: 28px; font-weight: bold; color: #c0392b; }
+  .stat-box .label { font-size: 12px; color: #666; }
+
+  .tabs {
+    display: flex;
+    gap: 5px;
+    margin: 20px 0 0 0;
+  }
+
+  .tab {
+    padding: 8px 16px;
+    background: #ddd;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .tab.active { background: #c0392b; color: white; }
+
+  .tab-content { display: none; background: white; padding: 20px; border: 1px solid #ddd; }
+  .tab-content.active { display: block; }
+
+  /* bar chart attempt */
+  .bar-container { margin: 10px 0; }
+  .bar-row { display: flex; align-items: center; margin: 6px 0; gap: 10px; }
+  .bar-label { width: 180px; font-size: 13px; text-align: right; }
+  .bar-outer { flex: 1; background: #eee; height: 24px; }
+  .bar-inner { height: 100%; background: #c0392b; display: flex; align-items: center; padding-left: 5px; }
+  .bar-inner span { font-size: 11px; color: white; }
+  .bar-num { width: 40px; font-size: 13px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+  th { background: #c0392b; color: white; padding: 8px; text-align: left; }
+  td { padding: 8px; border-bottom: 1px solid #ddd; }
+  tr:nth-child(even) { background: #f9f9f9; }
+
+  .risk-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .risk-card {
+    background: white;
+    border: 1px solid #ddd;
+    padding: 12px;
+    border-radius: 4px;
+  }
+  .risk-card h4 { margin: 0 0 6px 0; font-size: 14px; color: #333; }
+  .risk-card p { margin: 0; font-size: 12px; color: #666; }
+  .high { border-left: 4px solid #e74c3c; }
+  .mod { border-left: 4px solid #f39c12; }
+  .low { border-left: 4px solid #27ae60; }
+
+  /* "trend chart" using divs - hacky but works kind of */
+  .trend-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 150px;
+    padding: 10px;
+    background: white;
+    border: 1px solid #ddd;
+    margin: 15px 0;
+  }
+  .trend-bar {
+    flex: 1;
+    background: #c0392b;
+    min-height: 5px;
+    position: relative;
+  }
+  .trend-bar:hover { background: #e74c3c; }
+  .trend-bar .yr { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; white-space: nowrap; }
+  .trend-wrap { text-align: center; }
+  .trend-wrap p { font-size: 11px; color: #999; margin: 22px 0 0 0; }
+
+  .note { background: #fff3cd; border: 1px solid #ffc107; padding: 10px; margin: 10px 0; font-size: 13px; border-radius: 3px; }
+
+  footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 11px; color: #999; }
+</style>
+</head>
+<body>
+
+<h1>Colorectal Cancer: Incidence & Demographics</h1>
+<p style="color:#666;">A knowledge map exploring who gets CRC, why, and what we can do about it.</p>
+
+<div class="stats-row">
+  <div class="stat-box">
+    <div class="number">153K</div>
+    <div class="label">New US cases/year</div>
+  </div>
+  <div class="stat-box">
+    <div class="number">#3</div>
+    <div class="label">Cancer by incidence</div>
+  </div>
+  <div class="stat-box">
+    <div class="number">57K</div>
+    <div class="label">Deaths per year (US)</div>
+  </div>
+  <div class="stat-box">
+    <div class="number">65%</div>
+    <div class="label">5-year survival rate</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('demographics')">Demographics</button>
+  <button class="tab" onclick="showTab('trends')">Trends</button>
+  <button class="tab" onclick="showTab('risk')">Risk Factors</button>
+  <button class="tab" onclick="showTab('screening')">Screening</button>
+</div>
+
+<!-- DEMOGRAPHICS -->
+<div class="tab-content active" id="tab-demographics">
+  <h2>Incidence by Race/Ethnicity (per 100,000)</h2>
+  <div class="bar-container">
+    <div class="bar-row">
+      <span class="bar-label">Black/African Am.</span>
+      <div class="bar-outer"><div class="bar-inner" style="width:91.4%"><span>45.7</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Am. Indian/AK Native</span>
+      <div class="bar-outer"><div class="bar-inner" style="width:84.2%"><span>42.1</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">White</span>
+      <div class="bar-outer"><div class="bar-inner" style="width:77.2%"><span>38.6</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Hispanic/Latino</span>
+      <div class="bar-outer"><div class="bar-inner" style="width:65.8%; background:#e67e22"><span>32.9</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Asian/Pac. Islander</span>
+      <div class="bar-outer"><div class="bar-inner" style="width:56.8%; background:#27ae60"><span>28.4</span></div></div>
+    </div>
+  </div>
+
+  <h2>By Age Group</h2>
+  <table>
+    <tr><th>Age Group</th><th>Rate per 100,000</th><th>Notes</th></tr>
+    <tr><td>Under 40</td><td>3.2</td><td>Very rare but rising</td></tr>
+    <tr><td>40–49</td><td>12–21</td><td>Early-onset target group (new 2021 guidelines)</td></tr>
+    <tr><td>50–64</td><td>37–98</td><td>Major increase starts here</td></tr>
+    <tr><td>65–74</td><td>142–185</td><td>High risk group</td></tr>
+    <tr><td>75+</td><td>218–264</td><td>Highest rates</td></tr>
+  </table>
+
+  <h2>Male vs. Female</h2>
+  <div class="bar-container">
+    <div class="bar-row">
+      <span class="bar-label">Male - Colon</span>
+      <div class="bar-outer"><div class="bar-inner" style="width:87.4%; background:#2980b9"><span>43.7</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Female - Colon</span>
+      <div class="bar-outer"><div class="bar-inner" style="width:65.6%; background:#8e44ad"><span>32.8</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Male - Rectal</span>
+      <div class="bar-outer"><div class="bar-inner" style="width:34.4%; background:#2980b9"><span>17.2</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Female - Rectal</span>
+      <div class="bar-outer"><div class="bar-inner" style="width:19.6%; background:#8e44ad"><span>9.8</span></div></div>
+    </div>
+  </div>
+
+  <div class="note">⚠️ Black Americans have ~20% higher mortality than White Americans even at same stage — suggesting treatment and access disparities beyond just incidence.</div>
+</div>
+
+<!-- TRENDS -->
+<div class="tab-content" id="tab-trends">
+  <h2>Overall Incidence Trend (1975–2022)</h2>
+  <p style="font-size:13px; color:#666;">Overall rate declining ~1%/year since colonoscopy screening expanded. But early-onset CRC is going the other direction.</p>
+
+  <div class="trend-wrap">
+    <div class="trend-chart">
+      <!-- bars scaled to height based on rate out of 70 max = 150px -->
+      <div class="trend-bar" style="height:128px" title="1975: 60/100K"><span class="yr">1975</span></div>
+      <div class="trend-bar" style="height:126px" title="1980: 59"><span class="yr">1980</span></div>
+      <div class="trend-bar" style="height:122px" title="1985: 57"><span class="yr">1985</span></div>
+      <div class="trend-bar" style="height:115px" title="1990: 54"><span class="yr">1990</span></div>
+      <div class="trend-bar" style="height:105px" title="1995: 49"><span class="yr">1995</span></div>
+      <div class="trend-bar" style="height:96px" title="2000: 45"><span class="yr">2000</span></div>
+      <div class="trend-bar" style="height:90px" title="2005: 42"><span class="yr">2005</span></div>
+      <div class="trend-bar" style="height:81px" title="2010: 38"><span class="yr">2010</span></div>
+      <div class="trend-bar" style="height:77px" title="2015: 36"><span class="yr">2015</span></div>
+      <div class="trend-bar" style="height:75px" title="2019: 35"><span class="yr">2019</span></div>
+      <div class="trend-bar" style="height:72px" title="2022: 33.5"><span class="yr">2022</span></div>
+    </div>
+    <p>Age-standardized rate per 100,000 (hover for values)</p>
+  </div>
+
+  <div class="note">🚨 <strong>Early-onset CRC paradox:</strong> While overall rates fall, incidence in adults under 50 has risen ~85% since 1995. No single confirmed cause — Western diet, microbiome changes, and antibiotic use are leading hypotheses.</div>
+
+  <h2>5-Year Survival by Decade</h2>
+  <table>
+    <tr><th>Period</th><th>5-Year Survival</th><th>Change</th></tr>
+    <tr><td>1975–1977</td><td>51%</td><td>—</td></tr>
+    <tr><td>1985–1987</td><td>58%</td><td>+7%</td></tr>
+    <tr><td>1995–1997</td><td>62%</td><td>+4%</td></tr>
+    <tr><td>2005–2007</td><td>65%</td><td>+3%</td></tr>
+    <tr><td>2015–2021</td><td>65.3%</td><td>+0.3% (plateau)</td></tr>
+  </table>
+</div>
+
+<!-- RISK FACTORS -->
+<div class="tab-content" id="tab-risk">
+  <h2>Risk Factors</h2>
+  <div class="risk-grid">
+    <div class="risk-card high">
+      <h4>Lynch Syndrome</h4>
+      <p>Genetic. MLH1/MSH2/MSH6/PMS2 mutations. 40–80% lifetime risk. ~3% of all CRC.</p>
+    </div>
+    <div class="risk-card high">
+      <h4>FAP (Familial Adenomatous Polyposis)</h4>
+      <p>APC gene. Near 100% risk without colectomy. Hundreds of polyps develop.</p>
+    </div>
+    <div class="risk-card high">
+      <h4>Inflammatory Bowel Disease</h4>
+      <p>Ulcerative colitis & Crohn's. Risk 2–8× depending on extent + duration.</p>
+    </div>
+    <div class="risk-card mod">
+      <h4>Obesity & Inactivity</h4>
+      <p>BMI ≥30 = RR ~1.3–1.5. Independent risk from sedentary lifestyle too.</p>
+    </div>
+    <div class="risk-card mod">
+      <h4>Red & Processed Meat</h4>
+      <p>IARC Group 1 carcinogen (processed meat). +18% risk per 50g/day.</p>
+    </div>
+    <div class="risk-card mod">
+      <h4>Alcohol & Tobacco</h4>
+      <p>Heavy drinking RR ~1.5. Smoking risk appears after 30–40 year latency.</p>
+    </div>
+    <div class="risk-card mod">
+      <h4>Type 2 Diabetes</h4>
+      <p>Hyperinsulinemia promotes adenoma growth. RR ~1.3–1.5.</p>
+    </div>
+    <div class="risk-card low">
+      <h4>Gut Microbiome</h4>
+      <p>F. nucleatum enriched in CRC tumors. Emerging research area.</p>
+    </div>
+    <div class="risk-card low">
+      <h4>Western Diet Pattern</h4>
+      <p>Processed foods, low fiber, high fat. Hypothesized driver of early-onset rise.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SCREENING -->
+<div class="tab-content" id="tab-screening">
+  <h2>Screening Methods</h2>
+  <table>
+    <tr><th>Test</th><th>Frequency</th><th>Sensitivity (CRC)</th><th>Notes</th></tr>
+    <tr><td>Colonoscopy</td><td>Every 10 yrs</td><td>~95%</td><td>Gold standard, can remove polyps</td></tr>
+    <tr><td>FIT test</td><td>Annual</td><td>~79%</td><td>Easy, non-invasive, cheap</td></tr>
+    <tr><td>Cologuard</td><td>Every 1-3 yrs</td><td>~92%</td><td>DNA stool test, pricier, more false positives</td></tr>
+    <tr><td>CT colonography</td><td>Every 5 yrs</td><td>~96%</td><td>No sedation, can't remove polyps</td></tr>
+  </table>
+
+  <h2>Screening Uptake by Group (2021)</h2>
+  <div class="bar-container">
+    <div class="bar-row">
+      <span class="bar-label">White (non-Hispanic)</span>
+      <div class="bar-outer"><div class="bar-inner" style="width:71.8%; background:#2980b9"><span>71.8%</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Black/African Am.</span>
+      <div class="bar-outer"><div class="bar-inner" style="width:67.2%"><span>67.2%</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Asian American</span>
+      <div class="bar-outer"><div class="bar-inner" style="width:62.1%; background:#8e44ad"><span>62.1%</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Hispanic/Latino</span>
+      <div class="bar-outer"><div class="bar-inner" style="width:58.4%; background:#e67e22"><span>58.4%</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Uninsured Adults</span>
+      <div class="bar-outer"><div class="bar-inner" style="width:29.7%; background:#e74c3c"><span>29.7%</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Age 45–49 (new group)</span>
+      <div class="bar-outer"><div class="bar-inner" style="width:38.2%; background:#27ae60"><span>38.2%</span></div></div>
+    </div>
+  </div>
+
+  <div class="note">In 2021, USPSTF lowered the screening start age from 50 to 45 in response to rising early-onset CRC rates.</div>
+</div>
+
+<footer>
+  Sources: ACS Cancer Facts & Figures 2024 | NCI SEER 2017–2021 | USPSTF 2021 Guidelines | NHIS 2021
+</footer>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelector(`[onclick="showTab('${name}')"]`).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+</script>
+
+</body>
+</html>
